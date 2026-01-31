@@ -5,67 +5,141 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>iBersih Portal</title>
     <style>
-        body { 
-            font-family: sans-serif; 
-            margin: 0; 
-            padding: 0; 
-            text-align: center; 
-            background: #fff; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            min-height: 100vh; 
-        }
-        /* Top bar removed completely to eliminate the white line */
-        .logo-container { 
-            margin-top: 80px; /* Adjusted to sit nicely at the top */
-            margin-bottom: 20px; 
-        }
-        .logo { 
-            width: 180px; 
-        }
-        .site-title { 
-            font-size: 32px; 
-            font-weight: bold; 
-            margin-bottom: 40px; 
-            letter-spacing: 1px;
-            color: #000;
-        }
-        .btn-container { 
-            width: 90%; 
-            max-width: 400px; 
-        }
-        .btn { 
-            display: block; 
-            background: #003d7a; /* Matching the dark blue in your image */
-            color: white; 
-            padding: 16px; 
-            margin-bottom: 15px; 
-            border-radius: 8px; 
-            text-decoration: none; 
-            font-size: 20px; 
-            font-weight: 500; 
-            border: none; 
-            width: 100%; 
-            box-sizing: border-box; 
-        }
-        .btn:active { 
-            background: #002a54; 
-        }
+        body { font-family: -apple-system, sans-serif; margin: 0; text-align: center; background: #fff; }
+        .logo-container { margin-top: 60px; margin-bottom: 20px; }
+        .logo { width: 180px; }
+        .site-title { font-size: 32px; font-weight: bold; margin-bottom: 40px; }
+        .btn-container { width: 90%; max-width: 400px; margin: auto; }
+        .btn { display: block; background: #003d7a; color: white; padding: 16px; margin-bottom: 15px; border-radius: 8px; text-decoration: none; font-size: 20px; font-weight: 500; border: none; width: 100%; cursor: pointer; }
+
+        /* POPUP STYLES */
+        #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10; }
+        #popup { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-radius: 20px 20px 0 0; padding: 20px; box-sizing: border-box; z-index: 11; text-align: left; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        
+        .pop-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px; }
+        .pop-header h3 { margin: 0; width: 100%; text-align: center; font-size: 18px; }
+        .close-btn { font-size: 24px; color: #ccc; cursor: pointer; border: none; background: none; }
+        
+        label { font-weight: bold; display: block; margin-bottom: 8px; color: #333; }
+        input, textarea { width: 100%; padding: 12px; background: #f0f0f0; border: none; border-radius: 8px; margin-bottom: 15px; box-sizing: border-box; font-size: 16px; }
+        
+        .photo-box { background: #f0f0f0; padding: 15px; border-radius: 8px; display: flex; align-items: center; color: #888; cursor: pointer; margin-bottom: 20px; }
+        .photo-box img { width: 24px; margin-right: 10px; opacity: 0.5; }
+
+        .pop-footer { display: flex; gap: 10px; }
+        .cancel-btn { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: white; font-weight: bold; }
+        .submit-btn { flex: 1; padding: 12px; background: #003d7a; color: white; border: none; border-radius: 8px; font-weight: bold; }
     </style>
 </head>
 <body>
 
     <div class="logo-container">
-        <img src="https://i.ibb.co/LzNf9Fv/iBersih-Logo.png" alt="iBersih Logo" class="logo">
+        <img src="https://i.ibb.co/LzNf9Fv/iBersih-Logo.png" alt="Logo" class="logo">
     </div>
-
     <h1 class="site-title">ERISTANA A & B</h1>
 
     <div class="btn-container">
-        <a href="#" class="btn">Resident Reporting</a>
+        <button class="btn" onclick="openPopup()">Resident Reporting</button>
         <a href="clockin.html" class="btn">Staff Login</a>
     </div>
 
+    <div id="overlay" onclick="closePopup()"></div>
+    <div id="popup">
+        <div class="pop-header">
+            <div style="width:24px"></div>
+            <h3>Add item</h3>
+            <button class="close-btn" onclick="closePopup()">×</button>
+        </div>
+
+        <label>Resident Name</label>
+        <input type="text" id="resName" placeholder="Your name">
+
+        <label>Location</label>
+        <input type="text" id="resLoc" placeholder="e.g., Block A, Level 3">
+
+        <label>Description</label>
+        <textarea id="resDesc" rows="3" placeholder="Describe the issue..."></textarea>
+
+        <label>Incident Photo</label>
+        <input type="file" id="resPhoto" style="display:none" accept="image/*" capture="camera">
+        <div class="photo-box" onclick="document.getElementById('resPhoto').click()">
+            <img src="https://cdn-icons-png.flaticon.com/512/3342/3342137.png">
+            <span id="photoStatus">Choose an image...</span>
+        </div>
+
+        <div class="pop-footer">
+            <button class="cancel-btn" onclick="closePopup()">Cancel</button>
+            <button class="submit-btn" id="resSubmit">Submit</button>
+        </div>
+    </div>
+
+    <script>
+        // CONFIG
+        const AIRTABLE_TOKEN = "PASTE_YOUR_TOKEN_HERE";
+        const BASE_ID = "appJk7ICYq23qkTYW";
+        const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dgujwl2uv/image/upload";
+        const CLOUDINARY_PRESET = "g1l8bkpk";
+
+        function openPopup() {
+            document.getElementById('overlay').style.display = 'block';
+            document.getElementById('popup').style.display = 'block';
+        }
+        function closePopup() {
+            document.getElementById('overlay').style.display = 'none';
+            document.getElementById('popup').style.display = 'none';
+        }
+
+        document.getElementById('resPhoto').addEventListener('change', function() {
+            if(this.files[0]) document.getElementById('photoStatus').innerText = "Photo Ready!";
+        });
+
+        document.getElementById('resSubmit').addEventListener('click', async () => {
+            const name = document.getElementById('resName').value;
+            const file = document.getElementById('resPhoto').files[0];
+            const btn = document.getElementById('resSubmit');
+
+            if(!name || !file) { alert("Please enter your name and take a photo!"); return; }
+            
+            btn.innerText = "Processing...";
+            btn.disabled = true;
+
+            try {
+                // 1. Photo to Cloudinary
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', CLOUDINARY_PRESET);
+                const cloudRes = await fetch(CLOUDINARY_URL, {method:'POST', body:formData});
+                const cloudData = await cloudRes.json();
+
+                // 2. Data to Airtable
+                const airData = {
+                    records: [{
+                        fields: {
+                            "Resident Name": name,
+                            "Location": document.getElementById('resLoc').value,
+                            "Description": document.getElementById('resDesc').value,
+                            "Photo": [{ url: cloudData.secure_url }],
+                            "Reported At": new Date().toISOString()
+                        }
+                    }]
+                };
+
+                await fetch(`https://api.airtable.com/v0/${BASE_ID}/REPORTS`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${AIRTABLE_TOKEN}`, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(airData)
+                });
+
+                alert("Thank you! Report submitted successfully.");
+                closePopup();
+            } catch (e) {
+                alert("Submit failed: " + e.message);
+            } finally {
+                btn.innerText = "Submit";
+                btn.disabled = false;
+            }
+        });
+    </script>
 </body>
 </html>
