@@ -11,7 +11,7 @@
         #preview { width: 100%; margin-top: 15px; border-radius: 8px; display: none; border: 1px solid #ddd; }
         input { width: 100%; padding: 12px; margin-top: 5px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-size: 16px; }
         label { display: block; margin-top: 15px; font-weight: bold; text-align: left; }
-        #status { margin-top: 20px; font-weight: bold; padding: 10px; border-radius: 5px; }
+        #status { margin-top: 20px; font-weight: bold; padding: 10px; border-radius: 5px; min-height: 20px; }
         .success { color: #155724; background-color: #d4edda; }
         .error { color: #721c24; background-color: #f8d7da; }
     </style>
@@ -19,24 +19,23 @@
 <body>
     <div class="container">
         <h2>Cleaner Clock-In</h2>
-        
         <label>Staff Name:</label>
         <input type="text" id="staffName" placeholder="Enter your name">
-
         <label>Proof of Work:</label>
         <input type="file" accept="image/*" capture="camera" id="cameraInput" style="display: none;">
         <button class="btn" onclick="document.getElementById('cameraInput').click()">📸 TAKE PHOTO</button>
-        
         <img id="preview">
-
         <button id="submitBtn" class="btn" style="background: #28a745;">CONFIRM CLOCK-IN</button>
         <div id="status"></div>
     </div>
 
     <script>
+        // --- CONFIGURATION ---
         const AIRTABLE_TOKEN = "patGjYzzXj61ynTmS.ab6919e12e85d2965d1dda2d66e96aff9148dbcc07edfb5053b7999a7a69195e"; 
         const BASE_ID = "appJk7ICYq23qkTYW";
         const TABLE_NAME = "ATTENDANCE"; 
+        const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dgujwl2uv/image/upload";
+        const CLOUDINARY_PRESET = "g1l8bkpk";
 
         const cameraInput = document.getElementById('cameraInput');
         const preview = document.getElementById('preview');
@@ -60,43 +59,58 @@
                 return; 
             }
 
-            statusDiv.innerText = "Uploading photo & data...";
+            statusDiv.innerText = "⏳ Processing photo...";
+            statusDiv.className = "";
             submitBtn.disabled = true;
 
-            // Step 1: Convert image to a temporary URL (Airtable requires a URL to "grab" the photo)
-            // For this simple version, we'll send the data first. 
-            // Note: Direct local file upload to Airtable usually requires a middle-man service like Cloudinary.
-            // To keep it simple, I'll set up the data structure for your "Photo/Attachment" column.
-
-            const data = {
-                records: [{
-                    fields: {
-                        "Staff Member": name, 
-                        "Clock-In": new Date().toISOString()
-                        // "Photo/Attachment": [{ url: "..." }] <- This requires a public URL
-                    }
-                }]
-            };
-
             try {
-                const response = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}`, {
+                // 1. Upload to Cloudinary
+                const formData = new FormData();
+                formData.append('file', file);
+                formData.append('upload_preset', CLOUDINARY_PRESET);
+
+                const cloudRes = await fetch(CLOUDINARY_URL, { method: 'POST', body: formData });
+                const cloudData = await cloudRes.json();
+                const imageUrl = cloudData.secure_url;
+
+                if (!imageUrl) throw new Error("Photo upload failed");
+
+                statusDiv.innerText = "⏳ Saving to Airtable...";
+
+                // 2. Send to Airtable
+                const airtableData = {
+                    records: [{
+                        fields: {
+                            "Staff Member": name, 
+                            "Clock-In": new Date().toISOString(),
+                            "Photo/Attachment": [{ url: imageUrl }]
+                        }
+                    }]
+                };
+
+                const airRes = await fetch(`https://api.airtable.com/v0/${BASE_ID}/${TABLE_NAME}`, {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${AIRTABLE_TOKEN}`,
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify(data)
+                    body: JSON.stringify(airtableData)
                 });
 
-                if (response.ok) {
-                    statusDiv.innerText = "✅ Success! Name and Time recorded. (Working on photo upload next...)";
+                if (airRes.ok) {
+                    statusDiv.innerText = "✅ Success! Clock-in complete.";
                     statusDiv.className = "success";
+                    document.getElementById('staffName').value = "";
+                    preview.style.display = 'none';
+                    cameraInput.value = "";
                 } else {
-                    statusDiv.innerText = "❌ Error saving data.";
+                    const errorMsg = await airRes.json();
+                    statusDiv.innerText = "❌ Airtable Error: " + errorMsg.error.message;
                     statusDiv.className = "error";
                 }
             } catch (err) {
-                statusDiv.innerText = "❌ Connection failed.";
+                statusDiv.innerText = "❌ Error: " + err.message;
+                statusDiv.className = "error";
             } finally {
                 submitBtn.disabled = false;
             }
