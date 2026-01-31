@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Staff Clock-In</title>
+    <style>
+        body { font-family: sans-serif; padding: 20px; text-align: center; background: #f4f4f4; }
+        .container { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        .btn { background: #007bff; color: white; padding: 15px; border: none; border-radius: 8px; width: 100%; font-size: 18px; margin-top: 15px; cursor: pointer; }
+        #preview { width: 100%; margin-top: 15px; border-radius: 8px; display: none; border: 2px solid #ddd; }
+        label { display: block; margin-top: 15px; font-weight: bold; text-align: left; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Cleaner Clock-In</h2>
+        
+        <label>Staff Member:</label>
+        <input type="text" id="staffName" placeholder="Enter your name" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;">
+
+        <label>Proof of Work:</label>
+        <input type="file" accept="image/*" capture="camera" id="cameraInput" style="display: none;">
+        <button class="btn" onclick="document.getElementById('cameraInput').click()">📸 TAKE PHOTO</button>
+        
+        <img id="preview" alt="Preview">
+
+        <button id="submitBtn" class="btn" style="background: #28a745;">CONFIRM CLOCK-IN</button>
+    </div>
+
+    <script>
+        const cameraInput = document.getElementById('cameraInput');
+        const preview = document.getElementById('preview');
+
+        cameraInput.addEventListener('change', function() {
+            const file = this.files[0];
+            if (file) {
+                preview.src = URL.createObjectURL(file);
+                preview.style.display = 'block';
+            }
+        });
+    </script>
+</body>
+</html>
