@@ -35,7 +35,7 @@
 <body>
 
     <div class="logo-container">
-        <img src="https://i.ibb.co/LzNf9Fv/iBersih-Logo.png" alt="Logo" class="logo">
+        <img src="https://i.postimg.cc/85M7PZ7m/iBersih-Logo.png" alt="Logo" class="logo">
     </div>
     <h1 class="site-title">ERISTANA A & B</h1>
 
@@ -64,7 +64,7 @@
         <label>Incident Photo</label>
         <input type="file" id="resPhoto" style="display:none" accept="image/*" capture="camera">
         <div class="photo-box" onclick="document.getElementById('resPhoto').click()">
-            <img src="https://cdn-icons-png.flaticon.com/512/3342/3342137.png">
+            <img src="https://cdn-icons-png.flaticon.com/512/3342/3342137.png" alt="icon">
             <span id="photoStatus">Choose an image...</span>
         </div>
 
@@ -91,7 +91,7 @@
         }
 
         document.getElementById('resPhoto').addEventListener('change', function() {
-            if(this.files[0]) document.getElementById('photoStatus').innerText = "Photo Ready!";
+            if(this.files[0]) document.getElementById('photoStatus').innerText = "Photo Selected!";
         });
 
         document.getElementById('resSubmit').addEventListener('click', async () => {
@@ -99,9 +99,9 @@
             const file = document.getElementById('resPhoto').files[0];
             const btn = document.getElementById('resSubmit');
 
-            if(!name || !file) { alert("Please enter your name and take a photo!"); return; }
+            if(!name || !file) { alert("Please fill name and photo"); return; }
             
-            btn.innerText = "Processing...";
+            btn.innerText = "Sending...";
             btn.disabled = true;
 
             try {
@@ -120,7 +120,7 @@
                             "Location": document.getElementById('resLoc').value,
                             "Description": document.getElementById('resDesc').value,
                             "Photo": [{ url: cloudData.secure_url }],
-                            "Reported At": new Date().toISOString()
+                            "Reported At": new Date().toISOString() // AUTOMATIC TIMESTAMP
                         }
                     }]
                 };
@@ -131,10 +131,10 @@
                     body: JSON.stringify(airData)
                 });
 
-                alert("Thank you! Report submitted successfully.");
+                alert("Report Submitted!");
                 closePopup();
             } catch (e) {
-                alert("Submit failed: " + e.message);
+                alert("Error: " + e.message);
             } finally {
                 btn.innerText = "Submit";
                 btn.disabled = false;
