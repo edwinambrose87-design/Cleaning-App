@@ -34,7 +34,6 @@
     </div>
 
     <script>
-        // --- CONFIGURATION ---
         const AIRTABLE_TOKEN = "patGjYzzXj61ynTmS.ab6919e12e85d2965d1dda2d66e96aff9148dbcc07edfb5053b7999a7a69195e"; 
         const BASE_ID = "appJk7ICYq23qkTYW";
         const TABLE_NAME = "ATTENDANCE"; 
@@ -44,7 +43,6 @@
         const submitBtn = document.getElementById('submitBtn');
         const statusDiv = document.getElementById('status');
 
-        // Handle Image Preview
         cameraInput.addEventListener('change', function() {
             const file = this.files[0];
             if (file) {
@@ -53,26 +51,29 @@
             }
         });
 
-        // Handle Submit
         submitBtn.addEventListener('click', async () => {
             const name = document.getElementById('staffName').value;
+            const file = cameraInput.files[0];
             
-            if (!name) { 
-                alert("Please enter your name first!"); 
+            if (!name || !file) { 
+                alert("Please enter your name AND take a photo!"); 
                 return; 
             }
 
-            statusDiv.innerText = "Sending to Airtable...";
-            statusDiv.className = "";
+            statusDiv.innerText = "Uploading photo & data...";
             submitBtn.disabled = true;
-            submitBtn.innerText = "UPLOADING...";
 
-            // Match your Airtable columns exactly: "Staff Member" and "Clock-In"
+            // Step 1: Convert image to a temporary URL (Airtable requires a URL to "grab" the photo)
+            // For this simple version, we'll send the data first. 
+            // Note: Direct local file upload to Airtable usually requires a middle-man service like Cloudinary.
+            // To keep it simple, I'll set up the data structure for your "Photo/Attachment" column.
+
             const data = {
                 records: [{
                     fields: {
                         "Staff Member": name, 
                         "Clock-In": new Date().toISOString()
+                        // "Photo/Attachment": [{ url: "..." }] <- This requires a public URL
                     }
                 }]
             };
@@ -88,22 +89,16 @@
                 });
 
                 if (response.ok) {
-                    statusDiv.innerText = "✅ Success! Clock-in recorded.";
+                    statusDiv.innerText = "✅ Success! Name and Time recorded. (Working on photo upload next...)";
                     statusDiv.className = "success";
-                    // Clear form
-                    document.getElementById('staffName').value = "";
-                    preview.style.display = 'none';
                 } else {
-                    const errorData = await response.json();
-                    statusDiv.innerText = "❌ Error: " + errorData.error.message;
+                    statusDiv.innerText = "❌ Error saving data.";
                     statusDiv.className = "error";
                 }
             } catch (err) {
-                statusDiv.innerText = "❌ Connection failed. Check internet.";
-                statusDiv.className = "error";
+                statusDiv.innerText = "❌ Connection failed.";
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerText = "CONFIRM CLOCK-IN";
             }
         });
     </script>
