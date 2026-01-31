@@ -6,11 +6,30 @@
     <title>iBersih Portal</title>
     <style>
         body { font-family: -apple-system, sans-serif; margin: 0; text-align: center; background: #fff; }
-        .logo-container { margin-top: 60px; margin-bottom: 20px; }
+        .logo-container { margin-top: 80px; margin-bottom: 20px; }
         .logo { width: 180px; }
         .site-title { font-size: 32px; font-weight: bold; margin-bottom: 40px; }
+        
+        /* Fixed Button Styling for perfect symmetry */
         .btn-container { width: 90%; max-width: 400px; margin: auto; }
-        .btn { display: block; background: #003d7a; color: white; padding: 16px; margin-bottom: 15px; border-radius: 8px; text-decoration: none; font-size: 20px; font-weight: 500; border: none; width: 100%; cursor: pointer; }
+        .btn { 
+            display: block; 
+            background: #003d7a; 
+            color: white !important; 
+            padding: 16px 0; /* Vertical padding only */
+            margin-bottom: 15px; 
+            border-radius: 8px; 
+            text-decoration: none; 
+            font-size: 20px; 
+            font-weight: 500; 
+            border: none; 
+            width: 100%; 
+            cursor: pointer;
+            text-align: center;
+            box-sizing: border-box; /* Ensures padding doesn't affect total width */
+            line-height: 1.2; /* Matches text height across tags */
+        }
+        .btn:active { background: #002a54; }
 
         /* POPUP STYLES */
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10; }
@@ -28,8 +47,8 @@
         .photo-box img { width: 24px; margin-right: 10px; opacity: 0.5; }
 
         .pop-footer { display: flex; gap: 10px; }
-        .cancel-btn { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: white; font-weight: bold; }
-        .submit-btn { flex: 1; padding: 12px; background: #003d7a; color: white; border: none; border-radius: 8px; font-weight: bold; }
+        .cancel-btn { flex: 1; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: white; font-weight: bold; color: #333; cursor: pointer; }
+        .submit-btn { flex: 1; padding: 12px; background: #003d7a; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -75,7 +94,7 @@
     </div>
 
     <script>
-        // CONFIG
+        // CONFIG - PUT YOUR TOKEN HERE
         const AIRTABLE_TOKEN = "patGjYzzXj61ynTmS.ab6919e12e85d2965d1dda2d66e96aff9148dbcc07edfb5053b7999a7a69195e";
         const BASE_ID = "appJk7ICYq23qkTYW";
         const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dgujwl2uv/image/upload";
@@ -105,14 +124,12 @@
             btn.disabled = true;
 
             try {
-                // 1. Photo to Cloudinary
                 const formData = new FormData();
                 formData.append('file', file);
                 formData.append('upload_preset', CLOUDINARY_PRESET);
                 const cloudRes = await fetch(CLOUDINARY_URL, {method:'POST', body:formData});
                 const cloudData = await cloudRes.json();
 
-                // 2. Data to Airtable
                 const airData = {
                     records: [{
                         fields: {
@@ -120,7 +137,7 @@
                             "Location": document.getElementById('resLoc').value,
                             "Description": document.getElementById('resDesc').value,
                             "Photo": [{ url: cloudData.secure_url }],
-                            "Reported At": new Date().toISOString() // AUTOMATIC TIMESTAMP
+                            "Reported At": new Date().toISOString()
                         }
                     }]
                 };
@@ -131,7 +148,7 @@
                     body: JSON.stringify(airData)
                 });
 
-                alert("Report Submitted!");
+                alert("Report Submitted Successfully!");
                 closePopup();
             } catch (e) {
                 alert("Error: " + e.message);
