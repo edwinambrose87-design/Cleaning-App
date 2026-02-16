@@ -11,7 +11,6 @@
     <meta name="mobile-web-app-capable" content="yes">
 
     <link rel="manifest" href="manifest.json">
-
     <link rel="apple-touch-icon" href="https://i.postimg.cc/85M7PZ7m/iBersih-Logo.png">
     <link rel="icon" type="image/png" href="https://i.postimg.cc/85M7PZ7m/iBersih-Logo.png">
 
@@ -20,7 +19,6 @@
         .logo-container { margin-top: 80px; margin-bottom: 20px; }
         .logo { width: 180px; }
         .site-title { font-size: 32px; font-weight: bold; margin-bottom: 40px; }
-        
         .btn-container { width: 90%; max-width: 400px; margin: auto; }
         .btn { 
             display: block; 
@@ -103,6 +101,15 @@
     </div>
 
     <script>
+        // SERVICE WORKER REGISTRATION (Crucial for "Install App" option)
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                .then(reg => console.log('Service Worker registered'))
+                .catch(err => console.log('Service Worker failed', err));
+            });
+        }
+
         const AIRTABLE_TOKEN = "patGjYzzXj61ynTmS.ab6919e12e85d2965d1dda2d66e96aff9148dbcc07edfb5053b7999a7a69195e";
         const BASE_ID = "appJk7ICYq23qkTYW";
         const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dgujwl2uv/image/upload";
@@ -114,57 +121,4 @@
         }
         function closePopup() {
             document.getElementById('overlay').style.display = 'none';
-            document.getElementById('popup').style.display = 'none';
-        }
-
-        document.getElementById('resPhoto').addEventListener('change', function() {
-            if(this.files[0]) document.getElementById('photoStatus').innerText = "Photo Selected!";
-        });
-
-        document.getElementById('resSubmit').addEventListener('click', async () => {
-            const name = document.getElementById('resName').value;
-            const file = document.getElementById('resPhoto').files[0];
-            const btn = document.getElementById('resSubmit');
-
-            if(!name || !file) { alert("Please fill name and photo"); return; }
-            
-            btn.innerText = "Sending...";
-            btn.disabled = true;
-
-            try {
-                const formData = new FormData();
-                formData.append('file', file);
-                formData.append('upload_preset', CLOUDINARY_PRESET);
-                const cloudRes = await fetch(CLOUDINARY_URL, {method:'POST', body:formData});
-                const cloudData = await cloudRes.json();
-
-                const airData = {
-                    records: [{
-                        fields: {
-                            "Resident Name": name,
-                            "Location": document.getElementById('resLoc').value,
-                            "Description": document.getElementById('resDesc').value,
-                            "Photo": [{ url: cloudData.secure_url }],
-                            "Reported At": new Date().toISOString()
-                        }
-                    }]
-                };
-
-                await fetch(`https://api.airtable.com/v0/${BASE_ID}/REPORTS`, {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${AIRTABLE_TOKEN}`, 'Content-Type': 'application/json' },
-                    body: JSON.stringify(airData)
-                });
-
-                alert("Report Submitted Successfully!");
-                closePopup();
-            } catch (e) {
-                alert("Error: " + e.message);
-            } finally {
-                btn.innerText = "Submit";
-                btn.disabled = false;
-            }
-        });
-    </script>
-</body>
-</html>
+            document.
