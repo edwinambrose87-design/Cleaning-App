@@ -1,29 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="iBersih Tracker">
-<meta name="mobile-web-app-capable" content="yes">
-
-<link rel="apple-touch-icon" href="https://i.postimg.cc/85M7PZ7m/iBersih-Logo.png">
-<link rel="icon" type="image/png" href="https://i.postimg.cc/85M7PZ7m/iBersih-Logo.png">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>iBersih Portal</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="iBersih">
+    <meta name="mobile-web-app-capable" content="yes">
+
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/85M7PZ7m/iBersih-Logo.png">
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/85M7PZ7m/iBersih-Logo.png">
+
     <style>
         body { font-family: -apple-system, sans-serif; margin: 0; text-align: center; background: #fff; }
         .logo-container { margin-top: 80px; margin-bottom: 20px; }
         .logo { width: 180px; }
         .site-title { font-size: 32px; font-weight: bold; margin-bottom: 40px; }
         
-        /* Fixed Button Styling for perfect symmetry */
         .btn-container { width: 90%; max-width: 400px; margin: auto; }
         .btn { 
             display: block; 
             background: #003d7a; 
             color: white !important; 
-            padding: 16px 0; /* Vertical padding only */
+            padding: 16px 0; 
             margin-bottom: 15px; 
             border-radius: 8px; 
             text-decoration: none; 
@@ -33,12 +34,11 @@
             width: 100%; 
             cursor: pointer;
             text-align: center;
-            box-sizing: border-box; /* Ensures padding doesn't affect total width */
-            line-height: 1.2; /* Matches text height across tags */
+            box-sizing: border-box;
+            line-height: 1.2;
         }
         .btn:active { background: #002a54; }
 
-        /* POPUP STYLES */
         #overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10; }
         #popup { display: none; position: fixed; bottom: 0; left: 0; width: 100%; background: white; border-radius: 20px 20px 0 0; padding: 20px; box-sizing: border-box; z-index: 11; text-align: left; animation: slideUp 0.3s ease-out; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
@@ -101,7 +101,6 @@
     </div>
 
     <script>
-        // CONFIG - PUT YOUR TOKEN HERE
         const AIRTABLE_TOKEN = "patGjYzzXj61ynTmS.ab6919e12e85d2965d1dda2d66e96aff9148dbcc07edfb5053b7999a7a69195e";
         const BASE_ID = "appJk7ICYq23qkTYW";
         const CLOUDINARY_URL = "https://api.cloudinary.com/v1_1/dgujwl2uv/image/upload";
