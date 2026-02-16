@@ -1,0 +1,20 @@
+{
+  "name": "iBersih Tracker",
+  "short_name": "iBersih",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#003d7a",
+  "icons": [
+    {
+      "src": "https://i.postimg.cc/85M7PZ7m/iBersih-Logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://i.postimg.cc/85M7PZ7m/iBersih-Logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
